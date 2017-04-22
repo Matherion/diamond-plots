@@ -31,22 +31,60 @@ dataPath <- file.path(basePath, 'party panel', '15.1', 'data');
 dataFileName <- 'survey_652829_R_data_file.csv';
 dataLoadScriptName <- 'survey_652829_R_syntax_file.R';
 
-knitr::opts_chunk$set(echo = FALSE);
+###########################################################
+### Installing & loading the required packages
+###########################################################
 
-if (!require('userfriendlyscience')) {
-  stop("You need to have package 'userfriendlyscience' installed!");
+### If not present yet, install the
+### userfriendlyscience package
+if (!is.element('userfriendlyscience', installed.packages()[,1])) {
+  ### Use Belgian https mirror; replace with NULL to choose
+  chooseCRANmirror(ind=7);
+  install.packages('userfriendlyscience', dependencies=TRUE);
 }
+
+### Load userfriendlyscience
+require('userfriendlyscience');
+
+### Load the rest of the packages, installing them if need be
 safeRequire('ggplot2');
 safeRequire('grid');
 safeRequire('data.tree');
 safeRequire('pander');
 
-### Enable automatic figure caption numbering
+###########################################################
+### R Markdown configuration
+###########################################################
+
+### Setting default knitting options
+knitr::opts_chunk$set(echo=FALSE);
+knitr::opts_chunk$set(comment=NA);
+knitr::opts_chunk$set(dev="png", 
+		  		            dev.args=list(type="cairo"),
+			    	          dpi=100);
+knitr::opts_chunk$set(fig.width=5);
+knitr::opts_chunk$set(fig.height=5);
+knitr::opts_chunk$set(cache=FALSE);
+
+options(scipen=100);
+
+panderOptions('table.split.table', Inf);
+panderOptions('table.alignment.rownames', "left");
+
+# options(figure_counter = TRUE);
+# options(table_counter = TRUE);
+
 setFigCapNumbering();
+setTabCapNumbering();
 
 ```
 
 ```{r preparation}
+
+########################################################################
+### Load data, extract, translate, and apply variable names and labels,
+### set determinant structure, and compute scales
+########################################################################
 
 ### Import data from LimeSurvey data file
 dat <- importLimeSurveyData(datafile = file.path(dataPath, dataFileName),
@@ -140,9 +178,11 @@ subQuestions <- subQuestions.translated;
 leftAnchors <- leftAnchors.translated;
 rightAnchors <- rightAnchors.translated;
 
-
-selectedVariables <- 12:18;
+selectedVariables <- 14:18;
 selectedVarNames <- unlist(detStruct$intention$attitude$Likelihood$varNames)[selectedVariables];
+
+selectedTargets <- c(detStruct$intention$attitude$scaleVarName,
+                     detStruct$intention$scaleVarName);
 
 varLabels <- c("A high dose causes more hallucinations",
                "A high dose makes time pass faster",
@@ -150,14 +190,113 @@ varLabels <- c("A high dose causes more hallucinations",
                "A high dose is better for my health",
                "A high dose yields a better experience");
 
-meansDiamondPlot(dat, selectedVarNames,
-                 showData=FALSE);
+### Set 'other' gender to NA
+dat$gender <- factor(ifelse(as.numeric(dat$gender) > 1 &
+                            as.numeric(dat$gender) < 4,
+                            dat$gender, NA),
+                     labels=c('Male', 'Female'));
 
-meansDiamondPlot(dat, selectedVarNames,
+allRelevantVariables <- c(selectedVarNames, selectedTargets, 'gender');
+
+### Remove all irrelevant variables and all missing cases
+dat <- dat[complete.cases(dat[, allRelevantVariables]), allRelevantVariables];
+
+```
+
+The examples are based on `r nrow(dat);` participants.
+
+### Challenges when working with confidence intervals
+
+The beliefs selected for this example are `r vecTxt(selectedVarNames, lastDelimiter = ", and ")`. The determinants with which the associations of these beliefs will be computed are `r vecTxt(selectedTargets, lastDelimiter = " and ")`.
+
+```{r tab.cap="Correlation coefficients and their 95% confidence intervals for the associations between the beliefs and the direct measure of attitude, all regarding using a high dose of ecstasy." }
+
+  ########################################################################
+  ### Generate table 1
+  ########################################################################
+
+  meansVector <- vecTxt(round(colMeans(dat[, selectedVarNames]), 2), lastDelimiter = ", and ");
+  sdsVector <- vecTxt(round(apply(dat[, selectedVarNames], 2, sd), 2));
+  assocMatrix <- associationMatrix(dat, selectedVarNames, selectedTargets);
+  rMatrix <- assocMatrix$output$raw$es;
+  rAttitude <- formatR(rMatrix[, 1]);
+  rIntention <- formatR(rMatrix[, 2]);
+
+  ciTable <- cbind(formatR(assocMatrix$output$raw$ci.lo[, 1]),
+                   formatR(assocMatrix$output$raw$es[, 1]),
+                   formatR(assocMatrix$output$raw$ci.hi[, 1]));
+
+  rownames(ciTable) <- varLabels;
+  colnames(ciTable) <- c('lower', 'r', 'upper');
+
+  pander(ciTable);
+
+### For easy creation of 'manually specified diamond plots'
+# cat0("c(", vecTxtQ(selectedVarNames), ")");
+
+```
+
+For example, for the five beliefs related to using a high dose of ecstasy, the respective means are `r meansVector;`, and their correlations with attitude are `r rAttitude;`. This list of five values is quite straightforward to evaluate. However, when complemented with the lower and upper bounds of the confidence intervals, comparing these estimates requires evaluating fifteen values simultaneously, which carries a considerably higher load (see Table 1). For more associations, this number quickly increases. It would be useful if a method was available to facilitate interpretation of multiple confidence intervals simultaneously.
+
+```{r echo=TRUE, fig.cap="A diamond plot created from means, standard deviations, and sample sizes." }
+meanSDtoDiamondPlot(means = c(5.44, 5.58, 2.85, 2.07, 3.76),
+                    sd = c(1.19, 1.42, 1.4, 1.14, 1.63),
+                    ns = c(201, 201, 201, 201, 201),
+                    labels = c('Hallucination',
+                               'Time',
+                               'Memory',
+                               'Health',
+                               'Experience'));
+```
+
+
+  
+
+
+
+```{r echo=TRUE, fig.cap="The same diamond plot, but with an adjusted x axis." }
+meanSDtoDiamondPlot(means = c(5.44, 5.58, 2.85, 2.07, 3.76),
+                    sd = c(1.19, 1.42, 1.4, 1.14, 1.63),
+                    ns = c(201, 201, 201, 201, 201),
+                    labels = c('Hallucination',
+                               'Time',
+                               'Memory',
+                               'Health',
+                               'Experience')) +
+  scale_x_continuous(limits=c(1, 7), breaks=1:7);
+```
+
+
+  
+
+
+```{r echo=TRUE, fig.cap="A simple diamond plot based on raw data, but hiding the raw datapoints." }
+meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
+                              'highDose_AttBeliefs_timeAwareness',
+                              'highDose_AttBeliefs_memory',
+                              'highDose_AttBeliefs_health',
+                              'highDose_AttBeliefs_better'),
+                 showData=FALSE);
+```
+
+
+
+```{r echo=TRUE, fig.cap="The same diamond plot, but ." }
+
+meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
+                              'highDose_AttBeliefs_timeAwareness',
+                              'highDose_AttBeliefs_memory',
+                              'highDose_AttBeliefs_health',
+                              'highDose_AttBeliefs_better'));
+
+meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
+                              'highDose_AttBeliefs_timeAwareness',
+                              'highDose_AttBeliefs_memory',
+                              'highDose_AttBeliefs_health',
+                              'highDose_AttBeliefs_better'),
                  showData=FALSE) +
   xlim(1, 7);
 
-meansDiamondPlot(dat, selectedVarNames);
 
 meansDiamondPlot(dat, selectedVarNames, labels=varLabels);
 
@@ -169,27 +308,17 @@ biAxisDiamondPlot(dat, selectedVarNames,
 
 
 
-associationsDiamondPlot(dat, selectedVarNames, detStruct$intention$scaleVarName);
+associationsDiamondPlot(dat, selectedVarNames, selectedTargets[1]);
 
 associationsDiamondPlot(dat, selectedVarNames,
-                        detStruct$intention$scaleVarName,
+                        selectedTargets[1],
                         alpha=.5, color = 'blue') +
   associationsDiamondPlot(dat, selectedVarNames,
-                          detStruct$intention$attitude$scaleVarName,
+                          selectedTargets[2],
                           alpha=.5, color='red',
                           returnLayerOnly = TRUE);
 
-### Set 'other' gender to NA
-dat$gender <- factor(ifelse(as.numeric(dat$gender) > 1 &
-                            as.numeric(dat$gender) < 4,
-                            dat$gender, NA),
-                     labels=c('Male', 'Female'));
-
 associationsDiamondPlot(dat, selectedVarNames, 'gender');
 associationMatrix(dat, selectedVarNames, 'gender');
-
-associationMatrix(dat, 'gender', 'age');
-
-
 
 ```
