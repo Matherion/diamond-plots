@@ -37,3 +37,5 @@ vignettes/*.pdf
 *.docx
 ~*.tmp
 
+# PDFs
+*.pdf
