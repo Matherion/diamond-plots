@@ -295,10 +295,10 @@ meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
 ```{r echo=FALSE, fig.cap="Figure 1 in the manuscript.", fig.width=9, fig.height=9 }
 
 fig1_panelA <- meanSDtoDiamondPlot(labels = c('Hallucination',
-                               'Time',
-                               'Memory',
-                               'Health',
-                               'Experience'),
+                                              'Time',
+                                              'Memory',
+                                              'Health',
+                                              'Experience'),
                     means = c(5.44, 5.58, 2.85, 2.07, 3.76),
                     sd = c(1.19, 1.42, 1.4, 1.14, 1.63),
                     ns = c(201, 201, 201, 201, 201));
@@ -354,7 +354,7 @@ ggsave(file.path(outputPath, 'figure 2.png'),
        dpi=600);
 ```
 
-### Figure 2, panel A
+### Figure 3, panel A
 
 ```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients." }
 associationsDiamondPlot(dat,
@@ -366,7 +366,7 @@ associationsDiamondPlot(dat,
                         criterion='highDose_attitude');
 ```
 
-### Figure 2, panel B
+### Figure 3, panel B
 
 ```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients with two dependent variables." }
 associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
@@ -386,7 +386,7 @@ associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
                           returnLayerOnly = TRUE);
 ```
 
-### Figure 2, panel C
+### Figure 3, panel C
 
 ```{r echo=TRUE, fig.cap="An association diamond plot with colors indicating association strength." }
 associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
@@ -398,6 +398,8 @@ associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
                         generateColors=c("red", "green"),
                         fullColorRange=c(-1, 1));
 ```
+
+### Figure 3, panel D
 
 ```{r echo=TRUE, fig.cap="An association diamond plot, sorted by association strength." }
 associationsDiamondPlot(dat,
@@ -413,7 +415,6 @@ associationsDiamondPlot(dat,
 ### Figure 3 (as in the manuscript)
 
 ```{r echo=FALSE, fig.cap="Figure 3 in the manuscript.", fig.width=9, fig.height=9 }
-#associationMatrix(dat, selectedVarNames, 'gender');
 
 fig3_panelA <- associationsDiamondPlot(dat,
                                        selectedVarNames,
@@ -458,6 +459,21 @@ ggsave(file.path(outputPath, 'figure 3.png'),
        fig3,
        width=20, height=18, units='cm',
        dpi=600);
+
+```
+
+### Figure 3, panel A, reproduced using diamondPlot
+
+```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients." }
+
+# vecTxt(formatR(associationMatrix(dat, selectedVarNames, 'highDose_attitude')$output$raw$ci.lo));
+# vecTxt(formatR(associationMatrix(dat, selectedVarNames, 'highDose_attitude')$output$raw$es));
+# vecTxt(formatR(associationMatrix(dat, selectedVarNames, 'highDose_attitude')$output$raw$ci.hi));
+
+diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
+                       es = c(-.18, -.02, .35, .48, .66),
+                       ci.hi = c(-.05, .12, .47, .58, .73)),
+            yLabels=c('Hallucinate', 'Time', 'Memory', 'Health', 'Experience'));
 
 ```
 
