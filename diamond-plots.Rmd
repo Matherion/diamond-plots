@@ -277,7 +277,13 @@ meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
                               'highDose_AttBeliefs_memory',
                               'highDose_AttBeliefs_health',
                               'highDose_AttBeliefs_better'),
+                 labels = c('Hallucination',
+                            'Time',
+                            'Memory',
+                            'Health',
+                            'Experience'),
                  showData=FALSE);
+
 ```
 
 ### Figure 1, panel D
@@ -294,11 +300,13 @@ meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
 
 ```{r echo=FALSE, fig.cap="Figure 1 in the manuscript.", fig.width=9, fig.height=9 }
 
-fig1_panelA <- meanSDtoDiamondPlot(labels = c('Hallucination',
-                                              'Time',
-                                              'Memory',
-                                              'Health',
-                                              'Experience'),
+varLabels <- c('Hallucination',
+               'Time',
+               'Memory',
+               'Health',
+               'Experience');
+
+fig1_panelA <- meanSDtoDiamondPlot(labels = varLabels,
                     means = c(5.44, 5.58, 2.85, 2.07, 3.76),
                     sd = c(1.19, 1.42, 1.4, 1.14, 1.63),
                     ns = c(201, 201, 201, 201, 201));
@@ -310,10 +318,12 @@ fig1_panelB <- fig1_panelA +
 
 fig1_panelC <- meansDiamondPlot(dat,
                                 items=selectedVarNames,
+                                labels = varLabels,
                                 showData=FALSE);
 
 fig1_panelD <- meansDiamondPlot(dat,
-                                selectedVarNames);
+                                selectedVarNames,
+                                labels=varLabels);
 
 fig1 <- rbind(cbind(arrangeGrob(top=textGrob("A", hjust=0, x=0,
                                              gp = gpar(fontsize=16)),
@@ -341,10 +351,18 @@ ggsave(file.path(outputPath, 'figure 1.png'),
 ### Figure 2 (as in the manuscript)
 
 ```{r echo=TRUE, fig.cap="Figure 2 in the manuscript." }
+
+### For easy creation of 'manually specified diamond plots'
+# cat0("c(", vecTxtQ(selectedVarNames, lastElements=0), ")");
+# cat0("c(", vecTxtQ(leftAnchors[selectedVariables], lastElements=0), ")");
+# cat0("c(", vecTxtQ(rightAnchors[selectedVariables], lastElements=0), ")");
+# cat0("c(", vecTxtQ(subQuestions[selectedVariables], lastElements=0), ")");
+
 biAxisDiamondPlot(dat, selectedVarNames,
                   leftAnchors[selectedVariables],
                   rightAnchors[selectedVariables],
                   subQuestions=subQuestions[selectedVariables]);
+
 ggsave(file.path(outputPath, 'figure 2.png'),
        biAxisDiamondPlot(dat, selectedVarNames,
                   leftAnchors[selectedVariables],
@@ -352,9 +370,37 @@ ggsave(file.path(outputPath, 'figure 2.png'),
                   subQuestions=subQuestions[selectedVariables]),
        width=16, height=10, units='cm',
        dpi=600);
+
 ```
 
-### Figure 3, panel A
+### Figure 3 (as in the manuscript)
+
+```{r echo=TRUE, fig.cap="Comparing female and male participants." }
+
+meansComparisonDiamondPlot(dat,
+                           items=c('highDose_AttBeliefs_hallucinate',
+                                   'highDose_AttBeliefs_timeAwareness',
+                                   'highDose_AttBeliefs_memory',
+                                   'highDose_AttBeliefs_health',
+                                   'highDose_AttBeliefs_better'),
+                           compareBy='gender',
+                           conf.level=.99);
+
+ggsave(file.path(outputPath, 'figure 3.png'),
+       meansComparisonDiamondPlot(dat,
+                           items=c('highDose_AttBeliefs_hallucinate',
+                                   'highDose_AttBeliefs_timeAwareness',
+                                   'highDose_AttBeliefs_memory',
+                                   'highDose_AttBeliefs_health',
+                                   'highDose_AttBeliefs_better'),
+                           compareBy='gender',
+                           conf.level=.99),
+       width=12, height=10, units='cm',
+       dpi=600);
+
+```
+
+### Figure 4, panel A
 
 ```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients." }
 associationsDiamondPlot(dat,
@@ -363,30 +409,23 @@ associationsDiamondPlot(dat,
                                      'highDose_AttBeliefs_memory',
                                      'highDose_AttBeliefs_health',
                                      'highDose_AttBeliefs_better'),
-                        criterion='highDose_attitude');
+                        criteria='highDose_attitude');
 ```
 
-### Figure 3, panel B
+### Figure 4, panel B
 
 ```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients with two dependent variables." }
+
 associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
                                           'highDose_AttBeliefs_timeAwareness',
                                           'highDose_AttBeliefs_memory',
                                           'highDose_AttBeliefs_health',
                                           'highDose_AttBeliefs_better'),
-                        criterion='highDose_attitude',
-                        alpha=.5, color = 'blue') +
-  associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
-                                          'highDose_AttBeliefs_timeAwareness',
-                                          'highDose_AttBeliefs_memory',
-                                          'highDose_AttBeliefs_health',
-                                          'highDose_AttBeliefs_better'),
-                          criterion='highDose_intention',
-                          alpha=.5, color='red',
-                          returnLayerOnly = TRUE);
+                        criteria=c('highDose_attitude', 'highDose_intention'));
+
 ```
 
-### Figure 3, panel C
+### Figure 4, panel C
 
 ```{r echo=TRUE, fig.cap="An association diamond plot with colors indicating association strength." }
 associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
@@ -394,12 +433,12 @@ associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
                                           'highDose_AttBeliefs_memory',
                                           'highDose_AttBeliefs_health',
                                           'highDose_AttBeliefs_better'),
-                        criterion='highDose_attitude',
+                        criteria='highDose_attitude',
                         generateColors=c("red", "green"),
                         fullColorRange=c(-1, 1));
 ```
 
-### Figure 3, panel D
+### Figure 4, panel D
 
 ```{r echo=TRUE, fig.cap="An association diamond plot, sorted by association strength." }
 associationsDiamondPlot(dat,
@@ -408,56 +447,83 @@ associationsDiamondPlot(dat,
                                      'highDose_AttBeliefs_memory',
                                      'highDose_AttBeliefs_health',
                                      'highDose_AttBeliefs_better'),
-                        'highDose_attitude',
+                        criteria='highDose_attitude',
                         decreasing=FALSE);
 ```
 
-### Figure 3 (as in the manuscript)
+### Figure 4 (as in the manuscript)
 
-```{r echo=FALSE, fig.cap="Figure 3 in the manuscript.", fig.width=9, fig.height=9 }
+```{r echo=FALSE, fig.cap="Figure 4 in the manuscript.", fig.width=9, fig.height=9 }
 
-fig3_panelA <- associationsDiamondPlot(dat,
+fig4_panelA <- associationsDiamondPlot(dat,
                                        selectedVarNames,
                                        'highDose_attitude');
   
-fig3_panelB <- associationsDiamondPlot(dat, selectedVarNames,
-                                       criterion='highDose_attitude',
-                                       alpha=.5, color = 'blue') +
-  associationsDiamondPlot(dat, selectedVarNames,
-                          criterion='highDose_intention',
-                          alpha=.5, color='red',
-                          returnLayerOnly = TRUE);
+fig4_panelB <-
+  associationsDiamondPlot(dat, covariates=c('highDose_AttBeliefs_hallucinate',
+                                            'highDose_AttBeliefs_timeAwareness',
+                                            'highDose_AttBeliefs_memory',
+                                            'highDose_AttBeliefs_health',
+                                            'highDose_AttBeliefs_better'),
+                          criteria=c('highDose_attitude', 'highDose_intention'));
 
-fig3_panelC <- associationsDiamondPlot(dat,
+fig4_panelC <- associationsDiamondPlot(dat,
                                        selectedVarNames,
                                        'highDose_attitude',
                                        generateColors=c("red", "green"),
                                        fullColorRange=c(-1, 1));
 
-fig3_panelD <- associationsDiamondPlot(dat,
+fig4_panelD <- associationsDiamondPlot(dat,
                                        selectedVarNames,
-                                       'highDose_attitude',
+                                       criteria='highDose_attitude',
                                        decreasing=FALSE);
 
-fig3 <- rbind(cbind(arrangeGrob(top=textGrob("A", hjust=0, x=0,
+fig4 <- rbind(cbind(arrangeGrob(top=textGrob("A", hjust=0, x=0,
                                              gp = gpar(fontsize=16)),
-                                ggplotGrob(fig3_panelA)),
+                                ggplotGrob(fig4_panelA)),
                     arrangeGrob(top=textGrob("B", hjust=0, x=0,
                                              gp = gpar(fontsize=16)),
-                                ggplotGrob((fig3_panelB)))),
+                                ggplotGrob((fig4_panelB)))),
               cbind(arrangeGrob(top=textGrob("C", hjust=0, x=0,
                                              gp = gpar(fontsize=16)),
-                                ggplotGrob(fig3_panelC)),
+                                ggplotGrob(fig4_panelC)),
                     arrangeGrob(top=textGrob("D", hjust=0, x=0,
                                              gp = gpar(fontsize=16)),
-                                ggplotGrob((fig3_panelD)))));
+                                ggplotGrob((fig4_panelD)))));
 
 grid.newpage();
-grid.draw(fig3);
+grid.draw(fig4);
 
-ggsave(file.path(outputPath, 'figure 3.png'),
-       fig3,
+ggsave(file.path(outputPath, 'figure 4.png'),
+       fig4,
        width=20, height=18, units='cm',
+       dpi=600);
+
+```
+
+### Figure 5 (as in the manuscript)
+
+```{r echo=TRUE, fig.cap="A duo comparison diamond plot for comparison of female and male participant based on a rich perspective on the data." }
+
+duoComparisonDiamondPlot(dat,
+                         items=c('highDose_AttBeliefs_hallucinate',
+                                 'highDose_AttBeliefs_timeAwareness',
+                                 'highDose_AttBeliefs_memory',
+                                 'highDose_AttBeliefs_health',
+                                 'highDose_AttBeliefs_better'),
+                         compareBy='gender',
+                         conf.level=c(.99, .95));
+
+ggsave(file.path(outputPath, 'figure 5.png'),
+       duoComparisonDiamondPlot(dat,
+                                items=c('highDose_AttBeliefs_hallucinate',
+                                        'highDose_AttBeliefs_timeAwareness',
+                                        'highDose_AttBeliefs_memory',
+                                        'highDose_AttBeliefs_health',
+                                        'highDose_AttBeliefs_better'),
+                                compareBy='gender',
+                                conf.level=c(.99, .95)),
+       width=18, height=10, units='cm',
        dpi=600);
 
 ```
@@ -477,3 +543,18 @@ diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
 
 ```
 
+### Figure 3, panel A, reproduced using diamondPlot and stored on the desktop
+
+```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients." }
+
+a <- diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
+                            es = c(-.18, -.02, .35, .48, .66),
+                            ci.hi = c(-.05, .12, .47, .58, .73)),
+                 yLabels=c('Hallucinate', 'Time', 'Memory', 'Health', 'Experience'));
+
+require("ggplot2");
+ggsave(plot = a,
+       file = path.expand("~/../Desktop/figure.png"),
+       width=10, height=10, units='cm', dpi=300, type="cairo");
+
+```
