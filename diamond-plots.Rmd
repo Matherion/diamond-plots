@@ -298,7 +298,7 @@ meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
 
 ### Figure 1 (as in the manuscript)
 
-```{r echo=FALSE, fig.cap="Figure 1 in the manuscript.", fig.width=9, fig.height=9 }
+```{r echo=FALSE, fig.cap="Figure 1 in the manuscript.", fig.width=26/2.54, fig.height=22/2.54 }
 
 varLabels <- c('Hallucination',
                'Time',
@@ -343,7 +343,7 @@ grid.draw(fig1);
 
 ggsave(file.path(outputPath, 'figure 1.png'),
        fig1,
-       width=20, height=18, units='cm',
+       width=26, height=22, units='cm',
        dpi=600);
 
 ```
@@ -361,15 +361,12 @@ ggsave(file.path(outputPath, 'figure 1.png'),
 biAxisDiamondPlot(dat, selectedVarNames,
                   leftAnchors[selectedVariables],
                   rightAnchors[selectedVariables],
-                  subQuestions=subQuestions[selectedVariables]);
-
-ggsave(file.path(outputPath, 'figure 2.png'),
-       biAxisDiamondPlot(dat, selectedVarNames,
-                  leftAnchors[selectedVariables],
-                  rightAnchors[selectedVariables],
-                  subQuestions=subQuestions[selectedVariables]),
-       width=16, height=10, units='cm',
-       dpi=600);
+                  subQuestions=subQuestions[selectedVariables],
+                  outputFile=file.path(outputPath, 'figure 2.png'),
+                  outputWidth=16, outputHeight=10,
+                  ggsaveParams=list(units='cm',
+                                    dpi=600,
+                                    type="cairo"));
 
 ```
 
@@ -384,19 +381,13 @@ meansComparisonDiamondPlot(dat,
                                    'highDose_AttBeliefs_health',
                                    'highDose_AttBeliefs_better'),
                            compareBy='gender',
-                           conf.level=.99);
-
-ggsave(file.path(outputPath, 'figure 3.png'),
-       meansComparisonDiamondPlot(dat,
-                           items=c('highDose_AttBeliefs_hallucinate',
-                                   'highDose_AttBeliefs_timeAwareness',
-                                   'highDose_AttBeliefs_memory',
-                                   'highDose_AttBeliefs_health',
-                                   'highDose_AttBeliefs_better'),
-                           compareBy='gender',
-                           conf.level=.99),
-       width=12, height=10, units='cm',
-       dpi=600);
+                           conf.level=.99,
+                         outputFile = file.path(outputPath, 'figure 3.png'),
+                         outputWidth = 18,
+                         outputHeight = 10,
+                         ggsaveParams=list(units='cm',
+                                           dpi=600,
+                                           type="cairo"));
 
 ```
 
@@ -453,7 +444,7 @@ associationsDiamondPlot(dat,
 
 ### Figure 4 (as in the manuscript)
 
-```{r echo=FALSE, fig.cap="Figure 4 in the manuscript.", fig.width=9, fig.height=9 }
+```{r echo=FALSE, fig.cap="Figure 4 in the manuscript.", fig.width=26/2.54, fig.height=22/2.54 }
 
 fig4_panelA <- associationsDiamondPlot(dat,
                                        selectedVarNames,
@@ -496,7 +487,7 @@ grid.draw(fig4);
 
 ggsave(file.path(outputPath, 'figure 4.png'),
        fig4,
-       width=20, height=18, units='cm',
+       width=26, height=22, units='cm',
        dpi=600);
 
 ```
@@ -512,19 +503,13 @@ duoComparisonDiamondPlot(dat,
                                  'highDose_AttBeliefs_health',
                                  'highDose_AttBeliefs_better'),
                          compareBy='gender',
-                         conf.level=c(.99, .95));
-
-ggsave(file.path(outputPath, 'figure 5.png'),
-       duoComparisonDiamondPlot(dat,
-                                items=c('highDose_AttBeliefs_hallucinate',
-                                        'highDose_AttBeliefs_timeAwareness',
-                                        'highDose_AttBeliefs_memory',
-                                        'highDose_AttBeliefs_health',
-                                        'highDose_AttBeliefs_better'),
-                                compareBy='gender',
-                                conf.level=c(.99, .95)),
-       width=18, height=10, units='cm',
-       dpi=600);
+                         conf.level=c(.99, .95),
+                         outputFile = file.path(outputPath, 'figure 5.png'),
+                         outputWidth = 18,
+                         outputHeight = 10,
+                         ggsaveParams=list(units='cm',
+                                           dpi=600,
+                                           type="cairo"));
 
 ```
 
@@ -547,14 +532,10 @@ diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
 
 ```{r echo=TRUE, fig.cap="A diamond plot of correlation coefficients." }
 
-a <- diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
+diamondPlot(data.frame(ci.lo = c(-.31, -.16, .23, .37, .58),
                             es = c(-.18, -.02, .35, .48, .66),
                             ci.hi = c(-.05, .12, .47, .58, .73)),
-                 yLabels=c('Hallucinate', 'Time', 'Memory', 'Health', 'Experience'));
-
-require("ggplot2");
-ggsave(plot = a,
-       file = path.expand("~/../Desktop/figure.png"),
-       width=10, height=10, units='cm', dpi=300, type="cairo");
+                 yLabels=c('Hallucinate', 'Time', 'Memory', 'Health', 'Experience'),
+                 outputFile = path.expand("~/../Desktop/figure.png"));
 
 ```
