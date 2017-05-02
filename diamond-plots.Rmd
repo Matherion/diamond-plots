@@ -288,7 +288,7 @@ meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
 
 ### Figure 1, panel D
 
-```{r echo=TRUE, fig.cap="The same diamond plot, but showing the raw datapoints." }
+```{r echo=TRUE, fig.cap="The same diamond plot, but showing the raw datapoints.", fig.width=8 }
 meansDiamondPlot(dat, items=c('highDose_AttBeliefs_hallucinate',
                               'highDose_AttBeliefs_timeAwareness',
                               'highDose_AttBeliefs_memory',
@@ -350,7 +350,7 @@ ggsave(file.path(outputPath, 'figure 1.png'),
 
 ### Figure 2 (as in the manuscript)
 
-```{r echo=TRUE, fig.cap="Figure 2 in the manuscript." }
+```{r echo=TRUE, fig.cap="Figure 2 in the manuscript.", fig.width=8 }
 
 ### For easy creation of 'manually specified diamond plots'
 # cat0("c(", vecTxtQ(selectedVarNames, lastElements=0), ")");
@@ -372,7 +372,7 @@ biAxisDiamondPlot(dat, selectedVarNames,
 
 ### Figure 3 (as in the manuscript)
 
-```{r echo=TRUE, fig.cap="Comparing female and male participants." }
+```{r echo=TRUE, fig.cap="Comparing female and male participants.", fig.width=8 }
 
 meansComparisonDiamondPlot(dat,
                            items=c('highDose_AttBeliefs_hallucinate',
@@ -494,7 +494,7 @@ ggsave(file.path(outputPath, 'figure 4.png'),
 
 ### Figure 5 (as in the manuscript)
 
-```{r echo=TRUE, fig.cap="A duo comparison diamond plot for comparison of female and male participant based on a rich perspective on the data." }
+```{r echo=TRUE, fig.cap="A duo comparison diamond plot for comparison of female and male participant based on a rich perspective on the data.", fig.width=8 }
 
 duoComparisonDiamondPlot(dat,
                          items=c('highDose_AttBeliefs_hallucinate',
